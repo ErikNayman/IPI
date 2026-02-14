@@ -1,0 +1,1491 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#0b1220" />
+  <title>Инвестиционная инфляция (IPI) — динамика и правила решений</title>
+  <meta name="description" content="Инвестиционная инфляция (IPI) для доллара США: динамика, методика и практические правила решений на базе отклонения от линии чистой монетарной базы." />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Инвестиционная инфляция (IPI) — динамика и правила решений" />
+  <meta property="og:description" content="Методика, дашборд, сигнал и правила принятия решений: IPI vs чистая монетарная база." />
+  <meta property="og:type" content="website" />
+
+  <!-- Fonts: system-ui for performance + consistency -->
+  <style>
+    :root{
+      --bg: #0b1220;
+      --bg2:#0f1a2e;
+      --card:#0e1930cc;
+      --card2:#0f1f3a;
+      --text:#e9eef7;
+      --muted:#b9c5dd;
+      --muted2:#93a4c6;
+      --border: rgba(255,255,255,.10);
+      --border2: rgba(255,255,255,.16);
+      --shadow: 0 18px 50px rgba(0,0,0,.35);
+      --shadow2: 0 10px 28px rgba(0,0,0,.25);
+
+      --accent:#7c5cff;
+      --accent2:#19d3ff;
+      --good:#3be38a;
+      --warn:#ffd166;
+      --bad:#ff5c7a;
+
+      --radius-xl: 22px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --radius-sm: 12px;
+
+      --container: 1120px;
+
+      --step--1: clamp(.84rem, .80rem + .18vw, .92rem);
+      --step-0:  clamp(1.00rem, .96rem + .22vw, 1.10rem);
+      --step-1:  clamp(1.18rem, 1.08rem + .50vw, 1.42rem);
+      --step-2:  clamp(1.45rem, 1.25rem + 1.00vw, 2.10rem);
+      --step-3:  clamp(1.90rem, 1.55rem + 1.75vw, 3.10rem);
+
+      --focus: 0 0 0 3px rgba(124,92,255,.35), 0 0 0 6px rgba(25,211,255,.18);
+      --ring: 0 0 0 1px rgba(255,255,255,.08) inset;
+    }
+
+    /* Light theme support */
+    @media (prefers-color-scheme: light){
+      :root{
+        --bg:#f7f9ff;
+        --bg2:#eef3ff;
+        --card:#ffffffcc;
+        --card2:#ffffff;
+        --text:#0b1020;
+        --muted:#3a4a68;
+        --muted2:#516387;
+        --border: rgba(10,20,40,.10);
+        --border2: rgba(10,20,40,.18);
+        --shadow: 0 18px 50px rgba(10,20,40,.12);
+        --shadow2: 0 10px 28px rgba(10,20,40,.10);
+        --ring: 0 0 0 1px rgba(10,20,40,.06) inset;
+      }
+    }
+
+    *{ box-sizing: border-box; }
+    html{ scroll-behavior: smooth; }
+    @media (prefers-reduced-motion: reduce){
+      html{ scroll-behavior: auto; }
+      *{ animation: none !important; transition: none !important; }
+    }
+
+    body{
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+      color: var(--text);
+      background:
+        radial-gradient(1200px 600px at 15% 10%, rgba(124,92,255,.25), transparent 55%),
+        radial-gradient(900px 520px at 85% 20%, rgba(25,211,255,.18), transparent 55%),
+        linear-gradient(180deg, var(--bg), var(--bg2));
+      min-height: 100svh;
+      line-height: 1.55;
+    }
+
+    a{ color: inherit; text-decoration: none; }
+    a:hover{ text-decoration: underline; }
+    .skip-link{
+      position:absolute; left:-999px; top:auto; width:1px; height:1px; overflow:hidden;
+    }
+    .skip-link:focus{
+      left: 16px; top: 16px; width: auto; height:auto;
+      background: var(--card2); border: 1px solid var(--border2);
+      padding: 10px 12px; border-radius: 12px;
+      box-shadow: var(--shadow2);
+      z-index: 9999;
+      outline: none;
+    }
+
+    .container{
+      width: min(var(--container), calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    /* Header */
+    header{
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      background: linear-gradient(180deg, rgba(10,15,30,.70), rgba(10,15,30,.35));
+      border-bottom: 1px solid var(--border);
+    }
+    @media (prefers-color-scheme: light){
+      header{
+        background: linear-gradient(180deg, rgba(255,255,255,.80), rgba(255,255,255,.55));
+      }
+    }
+
+    .nav{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0;
+      gap: 14px;
+    }
+
+    .brand{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 180px;
+    }
+    .logo{
+      width: 34px; height: 34px;
+      border-radius: 12px;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(255,255,255,.18) 48%, rgba(255,255,255,0) 72%),
+        linear-gradient(135deg, var(--accent), var(--accent2));
+      box-shadow: 0 12px 28px rgba(0,0,0,.22);
+      border: 1px solid rgba(255,255,255,.25);
+    }
+    .brand h1{
+      font-size: var(--step-0);
+      margin: 0;
+      letter-spacing: .2px;
+      line-height: 1.2;
+    }
+    .brand small{
+      display: block;
+      color: var(--muted2);
+      font-size: var(--step--1);
+      margin-top: 2px;
+    }
+
+    .nav-links{
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .nav-links a{
+      padding: 8px 10px;
+      border-radius: 12px;
+      color: var(--muted);
+      font-weight: 600;
+      font-size: var(--step--1);
+      border: 1px solid transparent;
+    }
+    .nav-links a:hover{
+      text-decoration: none;
+      color: var(--text);
+      border-color: var(--border);
+      background: rgba(255,255,255,.04);
+    }
+
+    .nav-actions{
+      display:flex;
+      gap: 10px;
+      align-items: center;
+      margin-left: auto;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      font-weight: 700;
+      font-size: var(--step--1);
+      box-shadow: var(--ring);
+      cursor: pointer;
+      user-select: none;
+    }
+    .btn:hover{ background: rgba(255,255,255,.10); text-decoration: none; }
+    .btn:focus{ outline: none; box-shadow: var(--focus); }
+    .btn.primary{
+      border: 1px solid rgba(124,92,255,.45);
+      background: linear-gradient(135deg, rgba(124,92,255,.95), rgba(25,211,255,.55));
+      color: #061022;
+      text-shadow: 0 1px 0 rgba(255,255,255,.35);
+    }
+    .btn.primary:hover{ filter: brightness(1.03); }
+    .btn.ghost{
+      background: transparent;
+    }
+
+    .icon{
+      width: 18px; height: 18px;
+      display:inline-block;
+    }
+
+    /* Mobile menu */
+    .burger{
+      display:none;
+      padding: 10px 12px;
+    }
+    .mobile-panel{
+      display:none;
+      padding: 10px 0 16px 0;
+      border-top: 1px solid var(--border);
+    }
+    .mobile-panel a{
+      display:block;
+      padding: 12px 10px;
+      border-radius: 14px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .mobile-panel a:hover{
+      color: var(--text);
+      background: rgba(255,255,255,.06);
+      text-decoration: none;
+    }
+    @media (max-width: 920px){
+      .nav-links{ display:none; }
+      .burger{ display:inline-flex; }
+      .nav-actions{ margin-left: 0; }
+      .brand{ min-width: unset; }
+      .mobile-panel[data-open="true"]{ display:block; }
+    }
+
+    /* Sections */
+    section{ padding: 48px 0; }
+    .hero{ padding: 54px 0 36px 0; }
+    .grid{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 22px;
+      align-items: start;
+    }
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      border-radius: var(--radius-xl);
+      background: var(--card);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .card.pad{ padding: 22px; }
+    .card-head{
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,0));
+    }
+    .card-head h3{
+      margin: 0;
+      font-size: var(--step-1);
+      letter-spacing: .2px;
+    }
+    .card-body{ padding: 20px 22px 22px; }
+
+    .hero h2{
+      font-size: var(--step-3);
+      line-height: 1.08;
+      margin: 0 0 12px 0;
+      letter-spacing: -0.6px;
+    }
+    .lead{
+      font-size: var(--step-1);
+      color: var(--muted);
+      margin: 0 0 18px 0;
+      max-width: 70ch;
+    }
+
+    .hero-actions{
+      display:flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .pill-row{
+      display:flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.05);
+      color: var(--muted);
+      font-weight: 700;
+      font-size: var(--step--1);
+    }
+    .pill b{ color: var(--text); }
+
+    /* Stat cards */
+    .kpis{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+    @media (max-width: 980px){
+      .kpis{ grid-template-columns: 1fr; }
+    }
+    .kpi{
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.05);
+      padding: 14px 14px 12px;
+      box-shadow: var(--ring);
+    }
+    .kpi .label{
+      color: var(--muted2);
+      font-size: var(--step--1);
+      font-weight: 800;
+      letter-spacing: .2px;
+      text-transform: uppercase;
+    }
+    .kpi .value{
+      font-size: clamp(1.6rem, 1.2rem + 1.2vw, 2.1rem);
+      font-weight: 900;
+      margin-top: 8px;
+      line-height: 1.1;
+    }
+    .kpi .hint{
+      color: var(--muted);
+      font-size: var(--step--1);
+      margin-top: 8px;
+    }
+
+    /* Signal badge */
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border2);
+      background: rgba(255,255,255,.06);
+      font-weight: 900;
+      letter-spacing: .3px;
+      box-shadow: var(--ring);
+    }
+    .dot{
+      width: 10px; height: 10px; border-radius: 999px;
+      background: var(--warn);
+      box-shadow: 0 0 0 4px rgba(255,209,102,.16);
+    }
+    .badge.good .dot{ background: var(--good); box-shadow: 0 0 0 4px rgba(59,227,138,.16); }
+    .badge.bad .dot{ background: var(--bad); box-shadow: 0 0 0 4px rgba(255,92,122,.16); }
+
+    /* Text blocks */
+    .prose p{ margin: 0 0 12px 0; color: var(--muted); }
+    .prose h4{
+      margin: 18px 0 10px;
+      font-size: var(--step-1);
+      letter-spacing: .2px;
+    }
+    .prose ul{
+      margin: 10px 0 0 18px;
+      color: var(--muted);
+    }
+    .prose li{ margin: 6px 0; }
+
+    /* Tabs */
+    .tabs{
+      display:flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 12px 0 0;
+    }
+    .tab{
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.05);
+      padding: 9px 12px;
+      font-weight: 900;
+      color: var(--muted);
+      cursor: pointer;
+      user-select: none;
+    }
+    .tab[aria-selected="true"]{
+      color: var(--text);
+      border-color: rgba(124,92,255,.42);
+      background: linear-gradient(135deg, rgba(124,92,255,.22), rgba(25,211,255,.10));
+    }
+    .tab:focus{ outline:none; box-shadow: var(--focus); }
+
+    .chart-wrap{
+      padding: 12px 0 0;
+    }
+    canvas{
+      width: 100% !important;
+      height: 320px !important;
+    }
+    @media (max-width: 560px){
+      canvas{ height: 280px !important; }
+    }
+
+    /* Controls */
+    .controls{
+      display:flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 12px;
+    }
+    .control{
+      display:flex;
+      gap: 8px;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.05);
+      color: var(--muted);
+      box-shadow: var(--ring);
+    }
+    label{
+      font-size: var(--step--1);
+      font-weight: 900;
+      color: var(--muted2);
+      letter-spacing: .2px;
+      text-transform: uppercase;
+    }
+    select, input{
+      background: transparent;
+      color: var(--text);
+      border: 1px solid transparent;
+      font-weight: 800;
+      font-size: var(--step--1);
+      padding: 4px 6px;
+      border-radius: 10px;
+    }
+    select:focus, input:focus{ outline: none; box-shadow: var(--focus); border-color: var(--border2); }
+    option{ color: #0b1020; }
+
+    /* Table */
+    .table-wrap{
+      overflow:auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: rgba(255,255,255,.03);
+    }
+    table{
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 720px;
+    }
+    th, td{
+      padding: 12px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      font-size: var(--step--1);
+    }
+    th{
+      position: sticky;
+      top: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+      color: var(--muted2);
+      text-transform: uppercase;
+      letter-spacing: .2px;
+      font-weight: 900;
+      z-index: 1;
+    }
+    td{ color: var(--muted); font-weight: 700; }
+    .mono{ font-variant-numeric: tabular-nums; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace; }
+
+    /* Footer */
+    footer{
+      padding: 26px 0 40px;
+      color: var(--muted2);
+      border-top: 1px solid var(--border);
+      margin-top: 30px;
+    }
+    .footer-grid{
+      display:flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: start;
+      justify-content: space-between;
+    }
+    .fine{
+      font-size: var(--step--1);
+      max-width: 88ch;
+    }
+
+    /* Utility */
+    .muted{ color: var(--muted); }
+    .muted2{ color: var(--muted2); }
+    .hr{
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+    .sr-only{
+      position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+    }
+  </style>
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Перейти к содержанию</a>
+
+  <header>
+    <div class="container">
+      <div class="nav" role="navigation" aria-label="Основная навигация">
+        <a class="brand" href="#top" aria-label="На главную">
+          <span class="logo" aria-hidden="true"></span>
+          <span>
+            <h1>Инвестиционная инфляция (IPI)</h1>
+            <small>Доллар США · методика · дашборд · правила решений</small>
+          </span>
+        </a>
+
+        <nav class="nav-links" aria-label="Разделы">
+          <a href="#about">Что это</a>
+          <a href="#method">Методика</a>
+          <a href="#rules">Правила</a>
+          <a href="#dashboard">Динамика</a>
+          <a href="#data">Данные</a>
+          <a href="#contacts">Контакты</a>
+        </nav>
+
+        <div class="nav-actions">
+          <button class="btn ghost" id="themeBtn" type="button" aria-label="Переключить тему">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Z" stroke="currentColor" stroke-width="2"/>
+              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            Тема
+          </button>
+
+          <a class="btn primary" href="#dashboard">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M4 19V5M4 19H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M7 15l4-4 3 3 6-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Смотреть динамику
+          </a>
+
+          <button class="btn burger" id="burger" type="button" aria-expanded="false" aria-controls="mobilePanel">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            Меню
+          </button>
+        </div>
+      </div>
+
+      <div class="mobile-panel" id="mobilePanel" data-open="false">
+        <a href="#about">Что это</a>
+        <a href="#method">Методика</a>
+        <a href="#rules">Правила</a>
+        <a href="#dashboard">Динамика</a>
+        <a href="#data">Данные</a>
+        <a href="#contacts">Контакты</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- HERO -->
+    <section class="hero" id="top">
+      <div class="container">
+        <div class="grid">
+          <div class="card pad">
+            <h2>IPI как «инфляция финансовых активов» для USD — и как превращать это в правила действий</h2>
+            <p class="lead">
+              В вашей логике IPI растёт темпами, близкими к росту чистой монетарной базы (практически соответствует
+              <span class="mono">currency in circulation</span>), а основную волатильность IPI создают акции (бенчмарк — SPY).
+              Ниже — профессионально оформленная страница: методика, дашборд и правила принятия решений на базе отклонения IPI
+              от линии монетарной базы с учётом её тренда во времени.
+            </p>
+
+            <div class="hero-actions">
+              <a class="btn primary" href="#rules">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M20 7L10 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Правила решений
+              </a>
+              <a class="btn" href="#dashboard">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M4 19V5M4 19H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M7 14V10M11 14V7M15 14V11M19 14V8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                Дашборд IPI
+              </a>
+              <button class="btn" id="downloadCsvBtn" type="button">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 3v10m0 0 4-4m-4 4-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M4 17v3h16v-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                Выгрузить CSV
+              </button>
+            </div>
+
+            <div class="pill-row" aria-label="Ключевые идеи">
+              <div class="pill"><span aria-hidden="true">🧩</span> <b>Драйвер тренда:</b> чистая монетарная база</div>
+              <div class="pill"><span aria-hidden="true">📈</span> <b>Драйвер волатильности:</b> акции (SPY)</div>
+              <div class="pill"><span aria-hidden="true">🎯</span> <b>Сигнал:</b> отклонение IPI от линии базы</div>
+            </div>
+
+            <div class="hr"></div>
+            <p class="muted2">
+              Важно: это демонстрационный фронтенд-шаблон. Подключите ваш реальный расчёт IPI (Excel/скрипт/БД/API) —
+              и страница станет рабочим публичным дашбордом.
+            </p>
+          </div>
+
+          <aside class="card">
+            <div class="card-head">
+              <h3>Сводка (пример расчёта)</h3>
+            </div>
+            <div class="card-body">
+              <div class="badge" id="signalBadge" aria-live="polite">
+                <span class="dot" aria-hidden="true"></span>
+                <span id="signalText">Сигнал: —</span>
+              </div>
+
+              <div class="kpis" aria-label="Ключевые показатели">
+                <div class="kpi">
+                  <div class="label">IPI (YoY)</div>
+                  <div class="value mono" id="kpiIpiYoy">—</div>
+                  <div class="hint">Изменение IPI год к году</div>
+                </div>
+                <div class="kpi">
+                  <div class="label">База (trend)</div>
+                  <div class="value mono" id="kpiBaseCagr">6.5%</div>
+                  <div class="hint">Гипотеза: 6–7% средний рост</div>
+                </div>
+                <div class="kpi">
+                  <div class="label">Отклонение</div>
+                  <div class="value mono" id="kpiZ">—</div>
+                  <div class="hint">Z-score отклонения от тренда</div>
+                </div>
+              </div>
+
+              <div class="hr"></div>
+
+              <div class="prose">
+                <p>
+                  Практическая идея: сравнивать IPI с «линией» чистой монетарной базы, учитывая её рост во времени.
+                  Когда IPI падает <b>ниже</b> линии — это повышает привлекательность акций; когда IPI уходит
+                  <b>существенно выше</b> линии — возникает интерес к снижению доли акций.
+                </p>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about">
+      <div class="container">
+        <div class="card">
+          <div class="card-head">
+            <h3>Что такое инвестиционная инфляция (IPI) в вашем подходе</h3>
+          </div>
+          <div class="card-body prose">
+            <p>
+              IPI — это показатель, который вы используете как «инфляцию финансовых активов» в долларовой системе координат:
+              <b>в долгосроке</b> IPI растёт темпами, близкими к росту <b>чистой монетарной базы</b> (практически
+              эквивалентно <span class="mono">currency in circulation</span>), а <b>в кратко- и среднесроке</b> его
+              волатильность в основном создаётся компонентой акций (бенчмарк — <span class="mono">SPY</span>).
+            </p>
+            <p>
+              Это позволяет свести «хаотичность» рынка к более структурной системе: есть базовый монетарный тренд
+              (медленный, близкий к 6–7% годовых на длительных исторических промежутках) и есть рыночные отклонения,
+              которые можно превращать в правила ребалансировки.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- METHOD -->
+    <section id="method">
+      <div class="container">
+        <div class="grid">
+          <div class="card">
+            <div class="card-head">
+              <h3>Методика: как превратить видение в измеримый сигнал</h3>
+            </div>
+            <div class="card-body prose">
+              <h4>1) Две линии: «факт IPI» и «монетарная линия»</h4>
+              <ul>
+                <li><b>IPI(t)</b> — ваш индекс инвестиционной инфляции (месячный/недельный шаг).</li>
+                <li><b>MB(t)</b> — показатель чистой монетарной базы / currency in circulation (или близкий прокси).</li>
+                <li><b>MB_trend(t)</b> — «линия базы», то есть сглаженный тренд MB с учётом роста во времени.</li>
+              </ul>
+
+              <h4>2) Отклонение (Gap) и стандартизация (Z-score)</h4>
+              <p>
+                Чтобы правила были «профессиональными», лучше уйти от субъективного «существенно выше/ниже»
+                и измерять отклонение численно.
+              </p>
+              <ul>
+                <li>
+                  <b>Gap(t)</b> = ln(IPI(t)) − ln(MB_trend(t)) (лог-разница) <span class="muted2">или</span>
+                  Gap% = IPI(t) / MB_trend(t) − 1 (процентное отклонение).
+                </li>
+                <li>
+                  <b>Z(t)</b> = (Gap(t) − MA(Gap, N)) / STD(Gap, N), где N — окно (например, 36–60 месяцев).
+                </li>
+              </ul>
+
+              <h4>3) Почему это UX-важно</h4>
+              <p>
+                Пользователь (вы или подписчик) должен видеть: <b>тренд</b>, <b>отклонение</b>, <b>порог</b>, <b>действие</b>.
+                Поэтому на сайте логично показывать:
+                (1) график уровней, (2) график отклонения с порогами, (3) текущий сигнал и (4) правила.
+              </p>
+
+              <details>
+                <summary class="btn" style="margin-top:10px; width: fit-content;">Показать «как это считать» (концептуально)</summary>
+                <div class="prose" style="margin-top: 10px;">
+                  <p class="muted">
+                    На практике MB_trend(t) можно задать как сглаженный ряд (например, EMA) или как модель роста
+                    (например, CAGR 6.5% от базовой точки). В этом шаблоне — демонстрационный CAGR, чтобы было видно,
+                    как работает сигнал. В рабочей версии подключите ваш ряд MB/сглаживание из Excel.
+                  </p>
+                </div>
+              </details>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <h3>Что вы публикуете на сайте (структура контента)</h3>
+            </div>
+            <div class="card-body prose">
+              <ul>
+                <li><b>Динамика IPI</b>: уровень, YoY, отклонение от линии монетарной базы.</li>
+                <li><b>Сигнал</b>: понятное текстовое действие + численное значение отклонения.</li>
+                <li><b>Методика</b>: кратко + «подробности» в разворачиваемых блоках.</li>
+                <li><b>Правила</b>: прозрачные пороги и частота ребалансировки.</li>
+                <li><b>Данные</b>: выгрузка CSV и таблица последних наблюдений.</li>
+              </ul>
+              <p class="muted">
+                Такой UX одновременно решает 3 задачи: демонстрация исследования, повторяемость расчётов и
+                превращение идеи в «инструмент принятия решений», а не в текст.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RULES -->
+    <section id="rules">
+      <div class="container">
+        <div class="card">
+          <div class="card-head">
+            <h3>Профи-правила принятия решений на базе IPI vs линия монетарной базы</h3>
+          </div>
+          <div class="card-body prose">
+            <p>
+              Ниже — формализованные правила, которые напрямую следуют из вашего видения, но переведены в
+              систему, удобную для регулярных расчётов и дисциплины.
+            </p>
+
+            <h4>Определения</h4>
+            <ul>
+              <li><b>Частота решения:</b> 1 раз в месяц (после обновления данных) или 1 раз в неделю (если данные позволяют).</li>
+              <li><b>Gap(t):</b> отклонение IPI от линии MB_trend (в % или log-форме).</li>
+              <li><b>Z(t):</b> стандартизированное отклонение Gap относительно его истории на окне N (например, 48 месяцев).</li>
+              <li><b>Акции:</b> прокси SPY (или ваш набор акций/индекс, но идея — «equities risk»).</li>
+            </ul>
+
+            <h4>Правило 1: Сигнал «повышать долю акций» (accumulate)</h4>
+            <ul>
+              <li>
+                Условие: <b>Z(t) ≤ −1.0</b> <span class="muted2">(или Gap% ниже нижней полосы)</span>.
+              </li>
+              <li>
+                Действие: увеличить долю акций на фиксированный шаг (например, +5 п.п. к целевой доле) или на долю риска
+                (например, +0.25 от доступного риск-бюджета).
+              </li>
+              <li>
+                Логика: инвестиционная инфляция «отстала» от монетарного тренда → риск-премия по акциям становится интереснее.
+              </li>
+            </ul>
+
+            <h4>Правило 2: Нейтральная зона (держать / ребалансировать к базовому плану)</h4>
+            <ul>
+              <li>Условие: <b>−1.0 &lt; Z(t) &lt; +1.0</b>.</li>
+              <li>Действие: держать базовую стратегическую долю акций (SAA) и делать только технический ребаланс.</li>
+            </ul>
+
+            <h4>Правило 3: Сигнал «снижать долю акций» (reduce)</h4>
+            <ul>
+              <li>
+                Условие: <b>Z(t) ≥ +1.0</b> <span class="muted2">(или Gap% выше верхней полосы)</span>.
+              </li>
+              <li>
+                Действие: уменьшить долю акций на фиксированный шаг (например, −5 п.п.) или сократить плечо/риск.
+              </li>
+              <li>
+                Логика: IPI «перегрелся» относительно монетарной линии → дисбаланс вероятностей в пользу снижения будущей доходности/роста риска просадки.
+              </li>
+            </ul>
+
+            <h4>Правило 4: «Существенно» = второй уровень порогов</h4>
+            <p>
+              Чтобы отражать «существенно выше/ниже», добавьте вторые пороги:
+              <b>Z(t) ≤ −2.0</b> и <b>Z(t) ≥ +2.0</b>.
+            </p>
+            <ul>
+              <li><b>Z ≤ −2.0:</b> более агрессивное повышение доли (например, +10 п.п. суммарно в 1–2 шага).</li>
+              <li><b>Z ≥ +2.0:</b> более агрессивное снижение доли (например, −10 п.п. или хедж/кэш-буфер).</li>
+            </ul>
+
+            <h4>Правило 5: Учёт роста монетарной базы «со временем»</h4>
+            <ul>
+              <li>
+                Никогда не сравнивайте IPI с «плоской линией». Сравнение всегда идёт с <b>MB_trend(t)</b>, который растёт.
+              </li>
+              <li>
+                Если вы используете историческую гипотезу <b>6–7% годовых</b>, она задаёт форму MB_trend(t) (в демо — 6.5%).
+                В рабочей версии лучше привязаться к фактическим данным MB/CIC и сглаживанию (EMA/HP/регрессия).
+              </li>
+            </ul>
+
+            <h4>Правило 6: Анти-«пиление» (защита от шумов)</h4>
+            <ul>
+              <li>Минимальный интервал между действиями: 1 месяц.</li>
+              <li>Фильтр подтверждения: сигнал должен держаться 2 наблюдения подряд, если рынок шумный.</li>
+              <li>Максимальный шаг изменения доли за месяц: ограничение (например, 10 п.п.).</li>
+            </ul>
+
+            <div class="hr"></div>
+            <p class="muted">
+              Практический итог: вы превращаете «монетарный тренд» в якорь, а «акционную волатильность» — в источник
+              системных отклонений, из которых рождаются дисциплинированные ребалансировки.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DASHBOARD -->
+    <section id="dashboard">
+      <div class="container">
+        <div class="card">
+          <div class="card-head">
+            <h3>Дашборд: IPI vs линия монетарной базы</h3>
+          </div>
+
+          <div class="card-body">
+            <div class="controls" aria-label="Управление дашбордом">
+              <div class="control">
+                <label for="range">Период</label>
+                <select id="range" name="range">
+                  <option value="all">Весь период</option>
+                  <option value="60">Последние 60 точек</option>
+                  <option value="36">Последние 36 точек</option>
+                  <option value="24">Последние 24 точки</option>
+                </select>
+              </div>
+
+              <div class="control">
+                <label for="cagr">Рост базы</label>
+                <select id="cagr" name="cagr">
+                  <option value="0.06">6.0% годовых</option>
+                  <option value="0.065" selected>6.5% годовых</option>
+                  <option value="0.07">7.0% годовых</option>
+                </select>
+              </div>
+
+              <div class="control">
+                <label for="window">Окно Z</label>
+                <select id="window" name="window">
+                  <option value="24">24</option>
+                  <option value="36">36</option>
+                  <option value="48" selected>48</option>
+                  <option value="60">60</option>
+                </select>
+              </div>
+
+              <button class="btn" id="recalcBtn" type="button" title="Пересчитать">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M20 12a8 8 0 1 1-2.34-5.66" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M20 4v6h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Пересчитать
+              </button>
+            </div>
+
+            <div class="tabs" role="tablist" aria-label="Виды графиков">
+              <button class="tab" role="tab" id="tabLevels" aria-selected="true" aria-controls="panelLevels" tabindex="0">Уровни</button>
+              <button class="tab" role="tab" id="tabDeviation" aria-selected="false" aria-controls="panelDeviation" tabindex="-1">Отклонение</button>
+            </div>
+
+            <div class="chart-wrap" id="panelLevels" role="tabpanel" aria-labelledby="tabLevels">
+              <canvas id="levelsChart" aria-label="График уровней IPI и монетарной линии" role="img"></canvas>
+            </div>
+
+            <div class="chart-wrap" id="panelDeviation" role="tabpanel" aria-labelledby="tabDeviation" hidden>
+              <canvas id="devChart" aria-label="График отклонения IPI от монетарной линии" role="img"></canvas>
+            </div>
+
+            <p class="muted2" style="margin: 12px 0 0;">
+              Подсказка: в реальной версии замените демонстрационный набор данных на ваш расчёт IPI и ряд монетарной базы.
+              Интерфейс и логика сигналов останутся теми же.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DATA -->
+    <section id="data">
+      <div class="container">
+        <div class="grid">
+          <div class="card">
+            <div class="card-head">
+              <h3>Таблица последних значений (пример)</h3>
+            </div>
+            <div class="card-body">
+              <div class="table-wrap" aria-label="Таблица данных">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Дата</th>
+                      <th>IPI</th>
+                      <th>MB_trend</th>
+                      <th>Gap%</th>
+                      <th>Z</th>
+                      <th>Сигнал</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dataRows">
+                    <!-- JS inserts rows -->
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="controls" style="margin-top: 12px;">
+                <button class="btn" id="copySignalBtn" type="button">
+                  <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M8 8h10v12H8V8Z" stroke="currentColor" stroke-width="2"/>
+                    <path d="M6 16H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  Скопировать сигнал
+                </button>
+
+                <span class="muted2" id="copyToast" role="status" aria-live="polite" style="display:none;">
+                  Скопировано.
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" id="contacts">
+            <div class="card-head">
+              <h3>Контакты и подписка на обновления</h3>
+            </div>
+            <div class="card-body prose">
+              <p>
+                Если вы будете делать регулярные расчёты IPI и публиковать динамику, удобный UX —
+                это «одно место», где есть: графики, сигналы, методика и выгрузка данных.
+              </p>
+
+              <div class="hr"></div>
+
+              <form id="subscribeForm" aria-label="Форма подписки (демо)">
+                <div class="control" style="width: 100%; justify-content: space-between;">
+                  <div>
+                    <label for="email">Email</label><br/>
+                    <input id="email" name="email" type="email" placeholder="name@domain.com" autocomplete="email" inputmode="email" style="min-width: 260px;" />
+                  </div>
+                  <button class="btn primary" type="submit" style="height: fit-content;">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M22 2 11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M22 2 15 22l-4-9-9-4 20-7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Подписаться
+                  </button>
+                </div>
+                <p class="muted2" style="margin-top: 10px;">
+                  Демо-форма (без отправки). Для реального сайта подключите обработчик (Mailchimp/SendGrid/свой backend).
+                </p>
+              </form>
+
+              <div class="hr"></div>
+              <p class="muted">
+                Если хотите — можно сделать отдельные страницы: <b>/methodology</b>, <b>/data</b>, <b>/changelog</b>,
+                чтобы поддерживать доверие и воспроизводимость.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="container">
+        <div class="footer-grid">
+          <div class="fine">
+            <b>Дисклеймер.</b> Страница демонстрирует концепцию визуализации и формализации правил.
+            Любая информация на сайте не является индивидуальной инвестиционной рекомендацией.
+          </div>
+          <div class="fine">
+            <span class="muted2">©</span> <span id="year"></span>
+            <span class="muted2">·</span> IPI Dashboard Template
+          </div>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <!-- Chart.js (CDN). Если нужен полностью оффлайн-вариант — подключите локальный файл. -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <script>
+    /************************************************************
+     * DEMO DATA
+     * Замените этот блок на реальные данные (ваш IPI и монетарный ряд).
+     * Формат: { date: "YYYY-MM", ipi: number }
+     ************************************************************/
+    const demo = (() => {
+      // Генерируем аккуратный демо-ряд (120 месяцев) с трендом и рыночной волатильностью.
+      const points = [];
+      const start = new Date(2015, 0, 1);
+      const months = 120;
+
+      // базовый уровень IPI (условная шкала)
+      let ipi = 100;
+
+      // волатильность от "акций" (условная): смеси циклов + шум
+      for(let i=0; i<months; i++){
+        const d = new Date(start.getFullYear(), start.getMonth() + i, 1);
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, "0");
+
+        // тренд IPI (условно 7% годовых) + циклы + шум
+        const trendMonthly = Math.pow(1.07, 1/12) - 1;
+        const cyc1 = 0.010 * Math.sin(i/6.5);
+        const cyc2 = 0.007 * Math.sin(i/18.0 + 0.8);
+        const noise = (Math.random() - 0.5) * 0.015;
+
+        const r = trendMonthly + cyc1 + cyc2 + noise;
+        ipi *= (1 + r);
+
+        points.push({ date: `${yyyy}-${mm}`, ipi: +ipi.toFixed(2) });
+      }
+      return points;
+    })();
+
+    /************************************************************
+     * Helpers
+     ************************************************************/
+    const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+
+    function pct(x){ return (x * 100).toFixed(2) + "%"; }
+
+    function rollingMean(arr, n){
+      const out = new Array(arr.length).fill(null);
+      let sum = 0;
+      for(let i=0; i<arr.length; i++){
+        sum += arr[i];
+        if(i >= n) sum -= arr[i-n];
+        if(i >= n-1) out[i] = sum / n;
+      }
+      return out;
+    }
+
+    function rollingStd(arr, n){
+      const out = new Array(arr.length).fill(null);
+      for(let i=0; i<arr.length; i++){
+        if(i < n-1) continue;
+        const slice = arr.slice(i-n+1, i+1);
+        const m = slice.reduce((a,b)=>a+b,0)/n;
+        const v = slice.reduce((a,b)=>a + (b-m)*(b-m),0)/n;
+        out[i] = Math.sqrt(v);
+      }
+      return out;
+    }
+
+    function yoy(series){
+      // series: numeric array
+      const out = new Array(series.length).fill(null);
+      for(let i=12; i<series.length; i++){
+        out[i] = (series[i] / series[i-12]) - 1;
+      }
+      return out;
+    }
+
+    function formatZ(z){
+      if(z === null || Number.isNaN(z)) return "—";
+      const s = (z >= 0 ? "+" : "") + z.toFixed(2);
+      return s;
+    }
+
+    /************************************************************
+     * Core calc: MB_trend, Gap, Z, Signal
+     ************************************************************/
+    function computeModel(raw, annualCagr, zWindow){
+      const labels = raw.map(x => x.date);
+      const ipi = raw.map(x => x.ipi);
+
+      // MB_trend: CAGR from first point (демо).
+      const mb = [];
+      mb[0] = ipi[0] * 0.92; // условно, чтобы линия была "рядом" (для демонстрации)
+      const monthly = Math.pow(1 + annualCagr, 1/12) - 1;
+      for(let i=1; i<ipi.length; i++){
+        mb[i] = mb[i-1] * (1 + monthly);
+      }
+
+      // Gap as log diff (устойчивее): ln(IPI) - ln(MB_trend)
+      const gap = ipi.map((v,i) => Math.log(v) - Math.log(mb[i]));
+
+      const mean = rollingMean(gap, zWindow);
+      const std  = rollingStd(gap, zWindow);
+      const z = gap.map((g,i) => (mean[i] && std[i]) ? (g - mean[i]) / std[i] : null);
+
+      // Gap% for display
+      const gapPct = ipi.map((v,i) => (v / mb[i]) - 1);
+
+      // Signal thresholds (профи-версия: мягкие и жесткие уровни)
+      const signal = z.map(val => {
+        if(val === null) return "—";
+        if(val <= -2) return "ACCUMULATE++";
+        if(val <= -1) return "ACCUMULATE";
+        if(val >=  2) return "REDUCE++";
+        if(val >=  1) return "REDUCE";
+        return "NEUTRAL";
+      });
+
+      const ipiYoy = yoy(ipi);
+
+      return { labels, ipi, mb, gapPct, z, signal, ipiYoy };
+    }
+
+    function signalUi(signal){
+      // Map to RU text + badge class
+      switch(signal){
+        case "ACCUMULATE++":
+          return { text: "Сигнал: повышать долю акций (сильно)", cls: "good" };
+        case "ACCUMULATE":
+          return { text: "Сигнал: повышать долю акций", cls: "good" };
+        case "REDUCE++":
+          return { text: "Сигнал: снижать долю акций (сильно)", cls: "bad" };
+        case "REDUCE":
+          return { text: "Сигнал: снижать долю акций", cls: "bad" };
+        case "NEUTRAL":
+          return { text: "Сигнал: нейтрально / держать план", cls: "" };
+        default:
+          return { text: "Сигнал: —", cls: "" };
+      }
+    }
+
+    /************************************************************
+     * Charts
+     ************************************************************/
+    let levelsChart, devChart;
+
+    function destroyCharts(){
+      if(levelsChart){ levelsChart.destroy(); levelsChart = null; }
+      if(devChart){ devChart.destroy(); devChart = null; }
+    }
+
+    function buildCharts(model, sliceFrom){
+      const labels = model.labels.slice(sliceFrom);
+      const ipi = model.ipi.slice(sliceFrom);
+      const mb  = model.mb.slice(sliceFrom);
+      const z   = model.z.slice(sliceFrom);
+
+      const ctx1 = document.getElementById("levelsChart");
+      const ctx2 = document.getElementById("devChart");
+
+      levelsChart = new Chart(ctx1, {
+        type: "line",
+        data: {
+          labels,
+          datasets: [
+            {
+              label: "IPI (демо)",
+              data: ipi,
+              tension: 0.25,
+              borderWidth: 2,
+              pointRadius: 0
+            },
+            {
+              label: "MB_trend (демо)",
+              data: mb,
+              tension: 0.25,
+              borderWidth: 2,
+              pointRadius: 0,
+              borderDash: [8,6]
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: "index", intersect: false },
+          plugins: {
+            legend: { labels: { color: getComputedStyle(document.documentElement).getPropertyValue('--muted') } },
+            tooltip: { callbacks: {
+              label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2)}`
+            }}
+          },
+          scales: {
+            x: { ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--muted2') }, grid: { color: "rgba(255,255,255,.06)" } },
+            y: { ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--muted2') }, grid: { color: "rgba(255,255,255,.06)" } }
+          }
+        }
+      });
+
+      devChart = new Chart(ctx2, {
+        type: "line",
+        data: {
+          labels,
+          datasets: [
+            {
+              label: "Z-score отклонения (Gap)",
+              data: z,
+              tension: 0.25,
+              borderWidth: 2,
+              pointRadius: 0
+            },
+            // линии порогов
+            { label: "+1", data: new Array(labels.length).fill( 1), borderWidth: 1, pointRadius: 0, borderDash:[6,6] },
+            { label: "-1", data: new Array(labels.length).fill(-1), borderWidth: 1, pointRadius: 0, borderDash:[6,6] },
+            { label: "+2", data: new Array(labels.length).fill( 2), borderWidth: 1, pointRadius: 0, borderDash:[10,6] },
+            { label: "-2", data: new Array(labels.length).fill(-2), borderWidth: 1, pointRadius: 0, borderDash:[10,6] }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: "index", intersect: false },
+          plugins: {
+            legend: { labels: { color: getComputedStyle(document.documentElement).getPropertyValue('--muted') } },
+            tooltip: { callbacks: {
+              label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y === null ? "—" : ctx.parsed.y.toFixed(2)}`
+            }}
+          },
+          scales: {
+            x: { ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--muted2') }, grid: { color: "rgba(255,255,255,.06)" } },
+            y: { ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--muted2') }, grid: { color: "rgba(255,255,255,.06)" }, suggestedMin: -2.6, suggestedMax: 2.6 }
+          }
+        }
+      });
+    }
+
+    /************************************************************
+     * UI binding
+     ************************************************************/
+    const yearEl = document.getElementById("year");
+    yearEl.textContent = new Date().getFullYear();
+
+    const burger = document.getElementById("burger");
+    const mobilePanel = document.getElementById("mobilePanel");
+    burger?.addEventListener("click", () => {
+      const open = mobilePanel.getAttribute("data-open") === "true";
+      mobilePanel.setAttribute("data-open", String(!open));
+      burger.setAttribute("aria-expanded", String(!open));
+    });
+
+    // Close mobile panel on link click
+    mobilePanel?.querySelectorAll("a").forEach(a => {
+      a.addEventListener("click", () => {
+        mobilePanel.setAttribute("data-open", "false");
+        burger.setAttribute("aria-expanded", "false");
+      });
+    });
+
+    // Tabs
+    const tabLevels = document.getElementById("tabLevels");
+    const tabDeviation = document.getElementById("tabDeviation");
+    const panelLevels = document.getElementById("panelLevels");
+    const panelDeviation = document.getElementById("panelDeviation");
+
+    function setTab(which){
+      const isLevels = which === "levels";
+      tabLevels.setAttribute("aria-selected", String(isLevels));
+      tabDeviation.setAttribute("aria-selected", String(!isLevels));
+      tabLevels.tabIndex = isLevels ? 0 : -1;
+      tabDeviation.tabIndex = !isLevels ? 0 : -1;
+      panelLevels.hidden = !isLevels;
+      panelDeviation.hidden = isLevels;
+    }
+
+    tabLevels.addEventListener("click", () => setTab("levels"));
+    tabDeviation.addEventListener("click", () => setTab("dev"));
+
+    // Theme toggle (adds data-theme="dark|light" to html)
+    const themeBtn = document.getElementById("themeBtn");
+    const root = document.documentElement;
+
+    function setTheme(mode){
+      root.setAttribute("data-theme", mode);
+      // Force color-scheme for form controls if desired:
+      // root.style.colorScheme = mode;
+    }
+
+    themeBtn.addEventListener("click", () => {
+      const cur = root.getAttribute("data-theme");
+      if(cur === "light") setTheme("dark");
+      else if(cur === "dark") setTheme("light");
+      else {
+        // if not set, decide opposite of system
+        const sysLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
+        setTheme(sysLight ? "dark" : "light");
+      }
+      // Charts need rebuild to adapt colors nicely
+      renderAll();
+    });
+
+    // Subscribe demo
+    document.getElementById("subscribeForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      alert("Демо: форма не отправляет данные. Подключите backend/API для подписки.");
+    });
+
+    // Copy signal
+    const copySignalBtn = document.getElementById("copySignalBtn");
+    const copyToast = document.getElementById("copyToast");
+    copySignalBtn.addEventListener("click", async () => {
+      const text = document.getElementById("signalText").textContent;
+      try{
+        await navigator.clipboard.writeText(text);
+        copyToast.style.display = "inline";
+        setTimeout(()=> copyToast.style.display = "none", 1400);
+      }catch{
+        alert("Не удалось скопировать. Возможно, браузер ограничивает доступ к буферу обмена.");
+      }
+    });
+
+    // Download CSV
+    document.getElementById("downloadCsvBtn").addEventListener("click", () => {
+      const csv = buildCsv(currentModel);
+      downloadText(csv, "IPI_dashboard_export.csv", "text/csv;charset=utf-8");
+    });
+
+    function downloadText(text, filename, mime){
+      const blob = new Blob([text], { type: mime });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function buildCsv(model){
+      const rows = [["date","ipi","mb_trend","gap_pct","z","signal"]];
+      for(let i=0; i<model.labels.length; i++){
+        rows.push([
+          model.labels[i],
+          model.ipi[i]?.toFixed?.(4) ?? "",
+          model.mb[i]?.toFixed?.(4) ?? "",
+          model.gapPct[i]?.toFixed?.(6) ?? "",
+          (model.z[i] === null ? "" : model.z[i].toFixed(6)),
+          model.signal[i]
+        ]);
+      }
+      return rows.map(r => r.join(",")).join("\n");
+    }
+
+    // Controls -> render
+    const rangeEl = document.getElementById("range");
+    const cagrEl = document.getElementById("cagr");
+    const windowEl = document.getElementById("window");
+    const recalcBtn = document.getElementById("recalcBtn");
+
+    recalcBtn.addEventListener("click", () => renderAll());
+    rangeEl.addEventListener("change", () => renderAll());
+    cagrEl.addEventListener("change", () => renderAll());
+    windowEl.addEventListener("change", () => renderAll());
+
+    // State
+    let currentModel = null;
+
+    function renderAll(){
+      const annualCagr = parseFloat(cagrEl.value);
+      const zWindow = parseInt(windowEl.value, 10);
+      const model = computeModel(demo, annualCagr, zWindow);
+      currentModel = model;
+
+      // Slice
+      const r = rangeEl.value;
+      let sliceFrom = 0;
+      if(r !== "all"){
+        const n = parseInt(r, 10);
+        sliceFrom = Math.max(0, model.labels.length - n);
+      }
+
+      // KPIs from last point
+      const last = model.labels.length - 1;
+      const lastSignal = model.signal[last];
+      const ui = signalUi(lastSignal);
+
+      const badge = document.getElementById("signalBadge");
+      badge.classList.remove("good","bad");
+      if(ui.cls) badge.classList.add(ui.cls);
+      document.getElementById("signalText").textContent = ui.text;
+
+      const yoyVal = model.ipiYoy[last];
+      document.getElementById("kpiIpiYoy").textContent = (yoyVal === null) ? "—" : pct(yoyVal);
+      document.getElementById("kpiBaseCagr").textContent = pct(annualCagr);
+      document.getElementById("kpiZ").textContent = formatZ(model.z[last]);
+
+      // Charts
+      destroyCharts();
+      buildCharts(model, sliceFrom);
+
+      // Table last 12 rows
+      renderTable(model, 12);
+
+      // Keep selected tab visible after re-render
+      const isDev = tabDeviation.getAttribute("aria-selected") === "true";
+      setTab(isDev ? "dev" : "levels");
+    }
+
+    function renderTable(model, rowsCount){
+      const tbody = document.getElementById("dataRows");
+      tbody.innerHTML = "";
+
+      const n = model.labels.length;
+      const from = Math.max(0, n - rowsCount);
+
+      for(let i=n-1; i>=from; i--){
+        const tr = document.createElement("tr");
+
+        const date = model.labels[i];
+        const ipi = model.ipi[i];
+        const mb  = model.mb[i];
+        const gp  = model.gapPct[i];
+        const z   = model.z[i];
+        const sig = model.signal[i];
+
+        const sigRu = signalUi(sig).text.replace("Сигнал: ","");
+
+        tr.innerHTML = `
+          <td class="mono">${date}</td>
+          <td class="mono">${ipi.toFixed(2)}</td>
+          <td class="mono">${mb.toFixed(2)}</td>
+          <td class="mono">${pct(gp)}</td>
+          <td class="mono">${formatZ(z)}</td>
+          <td>${sigRu}</td>
+        `;
+        tbody.appendChild(tr);
+      }
+    }
+
+    // Initial render
+    renderAll();
+  </script>
+</body>
+</html>
